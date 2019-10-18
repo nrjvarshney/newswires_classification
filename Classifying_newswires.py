@@ -1,20 +1,29 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # In[1]:
 
 
-from keras.datasets import reuters
-
-
-# In[2]:
-
-
-(train_data, train_labels), (test_data, test_labels) = reuters.load_data(
-num_words=10000)
+from tensorflow.keras.datasets import reuters
 
 
 # In[3]:
+
+
+import numpy as np
+# save np.load
+np_load_old = np.load
+
+# modify the default parameters of np.load
+np.load = lambda *a,**k: np_load_old(*a, allow_pickle=True, **k)
+(train_data, train_labels), (test_data, test_labels) = reuters.load_data(
+num_words=10000)
+
+# restore np.load for future normal usage
+np.load = np_load_old
+
+
+# In[4]:
 
 
 # num_words restricts data to the 10000 most frequently occuring words 
@@ -48,7 +57,7 @@ train_data[0]])
 decoded_newswire
 
 
-# In[10]:
+# In[9]:
 
 
 import numpy as np
@@ -62,19 +71,19 @@ x_train = vectorize_sequences(train_data)
 x_test = vectorize_sequences(test_data)
 
 
-# In[13]:
+# In[10]:
 
 
 x_train[0],len(x_train[0])
 
 
-# In[32]:
+# In[11]:
 
 
 train_labels[0]
 
 
-# In[14]:
+# In[12]:
 
 
 def to_one_hot(labels, dimension=46):
@@ -87,17 +96,17 @@ one_hot_train_labels = to_one_hot(train_labels)
 one_hot_test_labels = to_one_hot(test_labels)
 
 
-# In[17]:
+# In[13]:
 
 
 one_hot_train_labels,len(one_hot_train_labels),len(one_hot_train_labels[0])
 
 
-# In[18]:
+# In[24]:
 
 
 # there is a built-in way to do this in Keras 
-from keras.utils.np_utils import to_categorical
+from tensorflow.keras.utils import to_categorical
 
 one_hot_train_labels = to_categorical(train_labels)
 one_hot_test_labels = to_categorical(test_labels)
@@ -105,11 +114,11 @@ one_hot_test_labels = to_categorical(test_labels)
 
 # # Building your network
 
-# In[19]:
+# In[26]:
 
 
-from keras import models
-from keras import layers
+from tensorflow.keras import models
+from tensorflow.keras import layers
 model = models.Sequential()
 model.add(layers.Dense(64, activation='relu', input_shape=(10000,)))
 model.add(layers.Dense(64, activation='relu'))
@@ -118,7 +127,7 @@ model.add(layers.Dense(46, activation='softmax'))
 
 
 
-# In[20]:
+# In[27]:
 
 
 
@@ -127,7 +136,7 @@ loss='categorical_crossentropy',
 metrics=['accuracy'])
 
 
-# In[21]:
+# In[28]:
 
 
 
@@ -138,7 +147,7 @@ y_val = one_hot_train_labels[:1000]
 partial_y_train = one_hot_train_labels[1000:]
 
 
-# In[22]:
+# In[29]:
 
 
 
@@ -150,7 +159,7 @@ validation_data=(x_val, y_val))
 
 
 
-# In[23]:
+# In[31]:
 
 
 import matplotlib.pyplot as plt
@@ -166,7 +175,7 @@ plt.legend()
 plt.show()
 
 
-# In[24]:
+# In[32]:
 
 
 plt.clf()
@@ -297,3 +306,9 @@ validation_data=(x_val, y_val))
 #     – Encoding the labels as integers and using the sparse_categorical_crossentropy loss function
 # 
 # 5. If you need to classify data into a large number of categories, you should avoid creating information bottlenecks in your network due to intermediate layers that are too small.
+
+# In[ ]:
+
+
+
+
